@@ -1,0 +1,20 @@
+;comentario
+add l1
+SUB R2 ;outro comentario
+load a
+
+
+
+
+input R2
+
+	output t5
+;comentario;
+	EnD	55
+
+
+
+			test
+	add ;comentario r1
+
+label: mul t5
