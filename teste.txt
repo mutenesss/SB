@@ -4,7 +4,7 @@ SUB R2 ;outro comentario
 load a
 
 
-
+		secao text		
 
 input R2
 
