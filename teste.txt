@@ -11,6 +11,9 @@ input R2
 	output t5
 ;comentario;
 	EnD	55
+	space
+	space	
+	
 
 
 
@@ -18,3 +21,5 @@ input R2
 	add ;comentario r1
 
 label: mul t5
+teste: space 10
+space

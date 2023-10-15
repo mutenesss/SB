@@ -12,6 +12,8 @@ using namespace std;
 
 vector<int> line_error;
 vector<string> type_error; // Lexico, Sintatico, Semantico
+vector<string> sec_data; // Vetor que armazena a secao data 
+vector<string> sec_text; // Vetor que armazena a secao text
 
 vector<string> tabela_instrucoes {"add", "sub", "mul", "div", "jmp", "jmpn", "jmpp", "jmpz", "copy", "load", "store","input", "output", "stop"};
 vector<int> opcode {1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ,11, 12, 13, 14};
@@ -52,6 +54,7 @@ struct label
 	string name;
 	int defined; // 0 - nao definido, 1 - definido
 	int value = 0;
+	int pos;
 };
 
 void addError(string type, int line)
@@ -77,10 +80,9 @@ int main(int argc, char *argv[])
 	string extension = fileExt(argv[1]);
 	vector<string> program; // Vetor que armazena o programa
 
-	regex var("[a-z_][a-z0-9]*");
+	regex var("^[_a-z][a-z0-9]+");
 
-	int sectionData = 0, sectionText = 0, labelInst = 0;	
-	// int posCount = 0;
+	int posCount = 0 ,sectionData = 0, sectionText = 0, labelInst = 0;	
 	
 	if(file.is_open())
 	{
@@ -101,14 +103,62 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	
+	// Copiar secao data para o vetor sec_data
+	if (find(program.begin(), program.end(), "secao text")!= program.end())
+	{
+		// Copiar secao text para o vetor sec_text
+		int i = find(program.begin(), program.end(), "secao text") - program.begin();
+		for (int j = i + 1; j < program.size(); j++)
+		{
+			if (program[j] == "secao data")
+			{
+				break;
+			}
+			else
+			{
+				sec_text.push_back(program[j]);
+			}
+		}
+	}
+	else
+	{
+		// Nao existe secao text
+		addError("Erro Sintatico", 0);
+
+		// print erros e sair do programa
+	}
+
+	// Copiar secao data para o vetor sec_data
+	for (int j = 0; j < program.size(); j++)
+	{
+		if (program[j] == "secao text")
+		{
+			break;
+		}
+		else
+		{
+			sec_data.push_back(program[j]);
+		}
+	}
+
+	program.clear();
+	program = sec_text;
+	program.insert(program.end(), sec_data.begin(), sec_data.end()); // Ordena o vetor program com a secao text e data
+
 	struct label l;
 
-	if (find(program.begin(), program.end(), "secao text") != program.end())
+	// Primeira passagem => adicao de labels na tabela de simbolos
+	for (int i = 0; i < program.size(); i++)
 	{
-		// Primeira passagem apenas se existe secao de texto
-		for (int i = 0; i < program.size(); i++)
+		if (program[i].find_first_of(":") != string::npos)
 		{
-			if (program[i].find_first_of(":") != string::npos)
+			if (labelInst == 1)
+			{
+				// Labels seguidas
+				addError("Erro Semantico", i);
+			}
+			else
 			{
 				string aux = program[i].substr(0, program[i].find_first_of(":"));
 				if (regex_match(aux.begin(), aux.end(), var) == 1)
@@ -116,7 +166,7 @@ int main(int argc, char *argv[])
 					string sub = program[i].substr(program[i].find_first_of(":") + 1, program[i].length());
 					vector<string> inst;
 
-					if (find(tabela_simbolos.begin(), tabela_simbolos.end(), aux) != tabela_simbolos.end())
+					if (find_if(tabela_simbolos.begin(), tabela_simbolos.end(), [aux](label const& l) {return l.name == aux;}) != tabela_simbolos.end())
 					{
 						// Label ja existe
 						addError("Erro Semantico", i);
@@ -129,38 +179,63 @@ int main(int argc, char *argv[])
 						// Adicionar label na tabela de simbolos
 						if (sub.size() == 0)
 						{
+							labelInst = 1;
+							l.name = aux;
 							continue;
 							// pegar prox linha
 						}
+						
 						else
 						{
 							// Possui instrucao
+							boost::trim(sub);
 							boost::split(inst, sub, boost::is_any_of(" "));
 							boost::trim(inst[0]);
+							boost::trim(inst[1]);
+							
 							if (find(tabela_instrucoes.begin(), tabela_instrucoes.end(), inst[0]) != tabela_instrucoes.end())
 							{
-								continue;
-								// posCount += tamanho[find(tabela_instrucoes.begin(), tabela_instrucoes.end(), inst[0]) - tabela_instrucoes.begin()];
+								l.name = aux;
+								l.defined = 1;
+								l.value = 0;
+								l.pos = posCount;
+								tabela_simbolos.push_back(l);
+								posCount += tamanho[find(tabela_instrucoes.begin(), tabela_instrucoes.end(), inst[0]) - tabela_instrucoes.begin()];
 							}
 							else
 							{
 								if (inst[0] == "const")
 								{
-									// posCount += 1;
 									boost::trim(inst[1]);
 									l.name = aux;
 									l.defined = 1;
 									l.value = stoi(inst[1]);
+									l.pos = posCount;
 									tabela_simbolos.push_back(l);
+									posCount++;
 								}
 								else if (inst[0] == "space")
 								{
-									boost::trim(inst[1]);
-									// posCount += stoi(inst[1]);
-									l.name = aux;
-									l.defined = 1;
-									l.value = stoi(inst[1]);
-									tabela_simbolos.push_back(l);
+									if (inst.size() == 2)
+									{
+										boost::trim(inst[1]);
+										l.name = aux;
+										l.defined = 1;
+										l.value = stoi(inst[1]);
+										l.pos = posCount;
+										posCount += stoi(inst[1]);
+										tabela_simbolos.push_back(l);
+									}
+									else
+									{
+										l.name = aux;
+										l.defined = 1;
+										l.value = 0;
+										l.pos = posCount;
+										tabela_simbolos.push_back(l);
+										posCount++;
+									}
+									
 								}
 								else
 								{
@@ -171,34 +246,97 @@ int main(int argc, char *argv[])
 						}
 					}
 				}
-				else
+			}
+		}
+		else
+		{
+			vector <string> inst;
+			boost::split(inst, program[i], boost::is_any_of(" "));
+			if (inst.size() > 2 || inst.size() < 2) {
+				// Vetor com mais de 2 argumentos ou menos de 2 argumentos diferente de stop e space
+				boost::trim(inst[0]);
+				if (inst[0] != "stop" && inst[0] != "space")
 				{
-					// Label nao eh valida
-					addError("Erro Lexico", i);
+					addError("Erro Sintatico", i);
+					continue;
 				}
 			}
-			// Verifica se a linha tem label
-				// se ha label, verificar se tem instrucao
-					// se ha label e instrucao, adicionar label na tabela de simbolos
-					// se ha label e nao ha instrucao, pegar prox elemento e verificar se eh instrucao
-				// se nao ha label, verificar se tem instrucao
-			// Verifica se a linha possui alguma instrucao
-
+			if (find(tabela_instrucoes.begin(), tabela_instrucoes.end(), inst[0]) != tabela_instrucoes.end())
+			{
+				if (labelInst == 1)
+				{
+					l.value = 0;
+					l.defined = 1;
+					l.pos = posCount;
+					tabela_simbolos.push_back(l);
+					labelInst = 0;
+				}
+				posCount += tamanho[find(tabela_instrucoes.begin(), tabela_instrucoes.end(), inst[0]) - tabela_instrucoes.begin()];
+			}
+			else
+			{	
+				if (inst[0] == "space")
+				{
+					if (inst.size() == 2)
+					{
+						boost::trim(inst[1]);
+						if (labelInst == 1)
+						{
+							l.value = stoi(inst[1]);
+							l.defined = 1;
+							l.pos = posCount;
+							tabela_simbolos.push_back(l);
+							labelInst = 0;
+						}
+					posCount += stoi(inst[1]);
+					}
+					else
+					{
+						if (labelInst == 1)
+						{
+							l.value = 0;
+							l.defined = 1;
+							l.pos = posCount;
+							tabela_simbolos.push_back(l);
+							labelInst = 0;
+						}
+						posCount++;
+					}
+					
+				}
+				else if (inst[0] == "const")
+				{
+					if (labelInst == 1)
+					{
+						l.value = stoi(inst[1]);
+						l.defined = 1;
+						l.pos = posCount;
+						tabela_simbolos.push_back(l);
+						labelInst = 0;
+					}
+					posCount++;
+				}
+				else
+				{
+					// Instrucao e diretiva nao existem
+					addError("Erro Sintatico", i);
+				}
+				// Instrucao nao existe ou diretiva sem label
+				addError("Erro Sintatico", i);
+			}
 		}
 	}
-	else
-	{
-		addError("Erro Sintatico", 0);;
-	}
+		// Verifica se a linha tem label
+			// se ha label, verificar se tem instrucao
+				// se ha label e nao ha instrucao, pegar prox elemento e verificar se eh instrucao
+			// se nao ha label, verificar se tem instrucao
+		// Verifica se a linha possui alguma instrucao
 
-	if (find(program.begin(), program.end(), "secao data") != program.end())
+	
+	cout << posCount << endl;
+	for (auto i : program)
 	{
-		sectionData = 1;
+		cout << i << endl;
 	}
-
-	// for (auto i : program)
-	// {
-	// 	cout << i << endl;
-	// }
 	return 0;
 }
