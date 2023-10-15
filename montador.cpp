@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 
 	regex var("^[_a-z][a-z0-9]+");
 
-	int posCount = 0 ,sectionData = 0, sectionText = 0, labelInst = 0;	
+	int posCount = 0, labelInst = 0;	
 	
 	if(file.is_open())
 	{
@@ -156,12 +156,12 @@ int main(int argc, char *argv[])
 			if (labelInst == 1)
 			{
 				// Labels seguidas
-				addError("Erro Semantico", i);
+				addError("Erro Semantico", i+1);
 			}
 			else
 			{
 				string aux = program[i].substr(0, program[i].find_first_of(":"));
-				if (regex_match(aux.begin(), aux.end(), var) == 1)
+				if (regex_match(aux.begin(), aux.end(), var) == 1 && aux.size() <= 30)
 				{
 					string sub = program[i].substr(program[i].find_first_of(":") + 1, program[i].length());
 					vector<string> inst;
@@ -169,20 +169,17 @@ int main(int argc, char *argv[])
 					if (find_if(tabela_simbolos.begin(), tabela_simbolos.end(), [aux](label const& l) {return l.name == aux;}) != tabela_simbolos.end())
 					{
 						// Label ja existe
-						addError("Erro Semantico", i);
+						addError("Erro Semantico", i+1);
 					}
 					else
 					{	
 						// Label nao existe
-						// Verificar se a linha possui alguma instrucao ou diretiva
-						// Caso nao possua, verificar se a proxima linha possui instrucao ou diretiva
-						// Adicionar label na tabela de simbolos
 						if (sub.size() == 0)
 						{
+							// Instrucao prox linha
 							labelInst = 1;
 							l.name = aux;
 							continue;
-							// pegar prox linha
 						}
 						
 						else
@@ -190,9 +187,15 @@ int main(int argc, char *argv[])
 							// Possui instrucao
 							boost::trim(sub);
 							boost::split(inst, sub, boost::is_any_of(" "));
-							boost::trim(inst[0]);
-							boost::trim(inst[1]);
-							
+							if (inst.size() > 2 || inst.size() < 2) {
+								// Vetor com mais de 2 argumentos ou menos de 2 argumentos diferente de stop e space
+								boost::trim(inst[0]);
+								if (inst[0] != "stop" && inst[0] != "space")
+								{
+									addError("Erro Sintatico", i+1);
+									continue;
+								}
+							}
 							if (find(tabela_instrucoes.begin(), tabela_instrucoes.end(), inst[0]) != tabela_instrucoes.end())
 							{
 								l.name = aux;
@@ -205,7 +208,7 @@ int main(int argc, char *argv[])
 							else
 							{
 								if (inst[0] == "const")
-								{
+								{	
 									boost::trim(inst[1]);
 									l.name = aux;
 									l.defined = 1;
@@ -240,14 +243,16 @@ int main(int argc, char *argv[])
 								else
 								{
 									// Instrucao e diretiva nao existem
-									addError("Erro Sintatico", i);
+									addError("Erro Lexico", i+1);
 								}
+								
 							}
 						}
 					}
 				}
 			}
 		}
+		// Nao ha label na linha
 		else
 		{
 			vector <string> inst;
@@ -257,7 +262,7 @@ int main(int argc, char *argv[])
 				boost::trim(inst[0]);
 				if (inst[0] != "stop" && inst[0] != "space")
 				{
-					addError("Erro Sintatico", i);
+					addError("Erro Sintatico", i+1);
 					continue;
 				}
 			}
@@ -288,7 +293,7 @@ int main(int argc, char *argv[])
 							tabela_simbolos.push_back(l);
 							labelInst = 0;
 						}
-					posCount += stoi(inst[1]);
+						posCount += stoi(inst[1]);
 					}
 					else
 					{
@@ -319,24 +324,28 @@ int main(int argc, char *argv[])
 				else
 				{
 					// Instrucao e diretiva nao existem
-					addError("Erro Sintatico", i);
+					addError("Erro Lexico", i+1);
 				}
-				// Instrucao nao existe ou diretiva sem label
-				addError("Erro Sintatico", i);
 			}
 		}
 	}
-		// Verifica se a linha tem label
-			// se ha label, verificar se tem instrucao
-				// se ha label e nao ha instrucao, pegar prox elemento e verificar se eh instrucao
-			// se nao ha label, verificar se tem instrucao
-		// Verifica se a linha possui alguma instrucao
 
-	
 	cout << posCount << endl;
 	for (auto i : program)
 	{
 		cout << i << endl;
+	}
+	for(auto i : type_error)
+	{
+		cout << i << endl;
+	}
+	for(auto i : line_error)
+	{
+		cout << i << endl;
+	}
+	for (auto i: tabela_simbolos)
+	{
+		cout << i.name << " " << i.defined << " " << i.value << " " << i.pos << endl;
 	}
 	return 0;
 }
