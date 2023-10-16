@@ -19,7 +19,11 @@ input R2
 
 			test
 	add ;comentario r1
+a1:
 
+
+add m1
+m2
 label: mul t5
 teste: space 10
 space
