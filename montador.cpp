@@ -1,6 +1,11 @@
 #include <bits/stdc++.h>
 #include <boost/algorithm/string.hpp>
 
+/*Alunos
+Erick Rodrigues Fraga
+Arthur Mota
+*/
+
 /* Como Compilar
 g++ -Wall -o montador montador.cpp
 C++20
@@ -107,7 +112,7 @@ int main(int argc, char *argv[])
 	{
 		// Copiar secao text para o vetor sec_text
 		int i = find(program.begin(), program.end(), "secao text") - program.begin();
-		for (int j = i + 1; j < program.size(); j++)
+		for (unsigned int j = i + 1; j < program.size(); j++)
 		{
 			if (program[j] == "secao data")
 			{
@@ -128,7 +133,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Copiar secao data para o vetor sec_data
-	for (int j = 0; j < program.size(); j++)
+	for (unsigned int j = 0; j < program.size(); j++)
 	{
 		if (program[j] == "secao text")
 		{
@@ -151,7 +156,7 @@ int main(int argc, char *argv[])
 	struct label l;
 
 	// Primeira passagem => adicao de labels na tabela de simbolos
-	for (int i = 0; i < program.size(); i++)
+	for (unsigned int i = 0; i < program.size(); i++)
 	{
 		if (program[i].find_first_of(":") != string::npos)
 		{
@@ -325,7 +330,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Segunda passagem => Verificacao de erros dos operandos e geracao do codigo objeto
-	for(int i = 0; i < program.size(); i++)
+	for(unsigned int i = 0; i < program.size(); i++)
 	{
 		vector<string> inst;
 		if (program[i].find_first_of(":") != string::npos)
@@ -383,7 +388,7 @@ int main(int argc, char *argv[])
 									//push copy, posicao da label 1 + argumento+ (se existe), posicao da label 2 + argumento+ (se existe)  
 									data.push_back(9);
 									data.push_back(ferreira -> pos + (inst[1].find_first_of("+") < inst[1].find_first_of(",") ? stoi(args[1]) : 0));
-									data.push_back(jorge -> pos  + (inst[1].find_last_of("+") < inst[1].find_first_of(",") ? stoi(args[abc + 1]) : 0));
+									data.push_back(jorge -> pos  + (inst[1].find_last_of("+") > inst[1].find_first_of(",") && (inst[1].find_last_of("+") != string::npos) ? stoi(args[abc + 1]) : 0));
 								}
 							else
 							{
@@ -522,9 +527,8 @@ int main(int argc, char *argv[])
 								{
 									//push copy, posicao da label 1 + argumento+ (se existe), posicao da label 2 + argumento+ (se existe)  
 									data.push_back(9);
-									// cout << (ferreira -> pos + (inst[1].find_first_of("+") < inst[1].find_first_of(",") ? stoi(args[1]) : 0))<< endl;
 									data.push_back(ferreira -> pos + (inst[1].find_first_of("+") < inst[1].find_first_of(",") ? stoi(args[1]) : 0));
-									data.push_back(jorge -> pos  + (inst[1].find_last_of("+") < inst[1].find_first_of(",") ? stoi(args[abc + 1]) : 0));
+									data.push_back(jorge -> pos  + (inst[1].find_last_of("+") > inst[1].find_first_of(",") && (inst[1].find_last_of("+") != string::npos) ? stoi(args[abc + 1]) : 0));
 								}
 							else
 							{
@@ -611,12 +615,14 @@ int main(int argc, char *argv[])
 			
 	}
 
+	// transformacao vetor -> string
 	stringstream ss;
 	for (auto j = data.begin(); j != data.end(); j++)
 	{
 		ss << *j << " ";
 	}
 
+	// Escrita em arquivo se nao ha erro
 	if (type_error.size() == 0)
 	{
 		fstream fileOut(file_name + ".obj", ios::out);
@@ -625,7 +631,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		for (int i = 0; i < type_error.size(); i++)
+		for (unsigned int i = 0; i < type_error.size(); i++)
 		{
 			cout << "Linha:" << type_error[i] << " " << line_error[i] << endl;
 		}
