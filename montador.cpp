@@ -18,10 +18,10 @@ vector<int> opcode {1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ,11, 12, 13, 14};
 vector<int> tamanho {2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2 ,1};
 vector<string> tabela_diretivas = {"space", "const"};
 
-string fileExt(string input)
+string fileName(string input)
 {
 	size_t pos = input.find_last_of(".");
-	input = input.substr(pos+1);
+	input = input.substr(0, pos);
 	return input;
 }
 
@@ -73,12 +73,12 @@ int main(int argc, char *argv[])
 	}
 
 	string line;
-	ifstream file(argv[1]);
-	string extension = fileExt(argv[1]);
+	fstream file(argv[1], ios::in);
+	string file_name = fileName(argv[1]);
 	vector<string> program; // Vetor que armazena o programa
 	vector<int> data; // Vetor que armazena o programa convertido para opcodes
 
-	regex var("^[_a-z][a-z0-9]+");
+	regex var("^[_a-z][_a-z0-9]+");
 
 	int posCount = 0, labelInst = 0;	
 	
@@ -133,6 +133,10 @@ int main(int argc, char *argv[])
 		if (program[j] == "secao text")
 		{
 			break;
+		}
+		else if (program[j] == "secao data")
+		{
+			continue;
 		}
 		else
 		{
@@ -321,7 +325,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Segunda passagem => Verificacao de erros dos operandos e geracao do codigo objeto
-	for(int i; i < program.size(); i++)
+	for(int i = 0; i < program.size(); i++)
 	{
 		vector<string> inst;
 		if (program[i].find_first_of(":") != string::npos)
@@ -379,7 +383,7 @@ int main(int argc, char *argv[])
 									//push copy, posicao da label 1 + argumento+ (se existe), posicao da label 2 + argumento+ (se existe)  
 									data.push_back(9);
 									data.push_back(ferreira -> pos + (inst[1].find_first_of("+") < inst[1].find_first_of(",") ? stoi(args[1]) : 0));
-									data.push_back(jorge -> pos  + (inst[1].find_last_of("+") > inst[1].find_first_of(",") ? stoi(args[abc + 1]) : 0));
+									data.push_back(jorge -> pos  + (inst[1].find_last_of("+") < inst[1].find_first_of(",") ? stoi(args[abc + 1]) : 0));
 								}
 							else
 							{
@@ -403,7 +407,7 @@ int main(int argc, char *argv[])
 						auto ferreira = find_if(tabela_simbolos.begin(), tabela_simbolos.end(), [inst](label const& l) {return l.name == inst[1];});						
 						if (ferreira != tabela_simbolos.end())
 						{
-							data.push_back(find(tabela_instrucoes.begin(), tabela_instrucoes.end(), inst[0]) - tabela_instrucoes.begin());
+							data.push_back(find(tabela_instrucoes.begin(), tabela_instrucoes.end(), inst[0]) - tabela_instrucoes.begin() + 1);
 							data.push_back(ferreira -> pos + (inst[1].find_first_of("+") != string::npos ? stoi(args[1]) : 0));
 						}
 						else
@@ -462,26 +466,170 @@ int main(int argc, char *argv[])
 					}
 				}
 			}
-			
+			// Nao eh instrucao, testar const e space
 		}
+		else
+		// Nao tem label
+		{
+			// Testar se eh instrucao
+			boost::split(inst, program[i], boost::is_any_of(" "));
+			if (inst.size() < 2)
+			{
+				// Vetor com mais de 2 argumentos ou menos de 2 argumentos diferente de stop e space
+				boost::trim(inst[0]);
+				if (inst[0] != "stop" && inst[0] != "space" && find(line_error.begin(), line_error.end(), i+1) == line_error.end())
+				{
+					// Testa se a linha ja foi marcada como erro caso nao seja stop ou space
+					addError("Erro Sintatico", i+1);
+					continue;
+				}
+			}
+			if (find(tabela_instrucoes.begin(), tabela_instrucoes.end(), inst[0]) != tabela_instrucoes.end())
+			{
+				
+				if (inst.size() == 1)
+				{
+					if (inst[0] == "stop")
+					{
+						data.push_back(14);
+					}
+					else
+					{
+						if (find(line_error.begin(), line_error.end(), i+1) == line_error.end())
+						{
+							addError("Erro Lexico", i+1);
+						}						
+						// Instrucao nao existe ou nao tem argumentos
+					}
+				}
+				else
+				{
+					boost::trim(inst[1]);
+					vector<string> args;
+					// Testar se existe + no argumento
+						// Se sim, verificar se o valor somado esta no range
+						// Se nao, erro
+					if (inst[0] == "copy")
+					{
+						boost::split(args, inst[1], boost::is_any_of(",+"));
+						auto ferreira = find_if(tabela_simbolos.begin(), tabela_simbolos.end(), [args](label const& l) {return l.name == args[0];});
+						if (ferreira != tabela_simbolos.end())
+						{
+							// abc: se primeira label tem +
+							int abc = inst[1].find_first_of("+") < inst[1].find_first_of(",") ? 2 : 1;
+							auto jorge = find_if(tabela_simbolos.begin(), tabela_simbolos.end(), [args,abc](label const& l) {return l.name == args[abc];});
+							if (jorge != tabela_simbolos.end())
+								{
+									//push copy, posicao da label 1 + argumento+ (se existe), posicao da label 2 + argumento+ (se existe)  
+									data.push_back(9);
+									// cout << (ferreira -> pos + (inst[1].find_first_of("+") < inst[1].find_first_of(",") ? stoi(args[1]) : 0))<< endl;
+									data.push_back(ferreira -> pos + (inst[1].find_first_of("+") < inst[1].find_first_of(",") ? stoi(args[1]) : 0));
+									data.push_back(jorge -> pos  + (inst[1].find_last_of("+") < inst[1].find_first_of(",") ? stoi(args[abc + 1]) : 0));
+								}
+							else
+							{
+								if (find(line_error.begin(), line_error.end(), i+1) == line_error.end())
+								{
+									addError("Erro Semantico", i+1);
+								}
+							}
+						}
+						else
+						{
+							if (find(line_error.begin(), line_error.end(), i+1) == line_error.end())
+							{
+								addError("Erro Semantico", i+1);
+							}
+						}	
+					}
+					else
+					{
+						boost::split(args, inst[1], boost::is_any_of("+"));
+						auto ferreira = find_if(tabela_simbolos.begin(), tabela_simbolos.end(), [inst](label const& l) {return l.name == inst[1];});						
+						if (ferreira != tabela_simbolos.end())
+						{
+							data.push_back(find(tabela_instrucoes.begin(), tabela_instrucoes.end(), inst[0]) - tabela_instrucoes.begin() + 1);
+							data.push_back(ferreira -> pos + (inst[1].find_first_of("+") != string::npos ? stoi(args[1]) : 0));
+						}
+						else
+						{
+							if (find(line_error.begin(), line_error.end(), i+1) == line_error.end())
+							{
+								addError("Erro Semantico", i+1);
+							}
+						}
+					}						
+				}
+			}
+			else
+			{
+				if (inst[0] == "const")
+				{
+					boost::trim(inst[1]);
+					if (inst[1].find_first_not_of("0123456789") == string::npos)
+					{
+						data.push_back(stoi(inst[1]));
+					}
+					else
+					{
+						if (find(line_error.begin(), line_error.end(), i+1) == line_error.end())
+						{
+							addError("Erro Sintatico", i+1);
+						}
+					}
+				}
+				else if (inst[0] == "space")
+				{
+					if (inst.size() == 1)
+					{
+						data.push_back(0);
+					}
+					else if (inst[1].find_first_not_of("0123456789") == string::npos)
+					{
+						for (int i; i < stoi(inst[1]); i++)
+						{
+							data.push_back(0);
+						}
+					}
+					else
+					{
+						if (find(line_error.begin(), line_error.end(), i+1) == line_error.end())
+						{
+							addError("Erro Sintatico", i+1);
+						}
+					}		
+				}
+				else
+				{
+					if (find(line_error.begin(), line_error.end(), i+1) == line_error.end())
+					{
+						addError("Erro Lexico", i+1);
+					}
+				}
+			}
+		}
+			
 	}
 
-	// cout << posCount << endl;
-	for (auto i : program)
+	stringstream ss;
+	for (auto j = data.begin(); j != data.end(); j++)
 	{
-		cout << i << endl;
+		ss << *j << " ";
 	}
-	for(auto i : type_error)
+
+	if (type_error.size() == 0)
 	{
-		cout << i << endl;
+		fstream fileOut(file_name + ".obj", ios::out);
+		fileOut << ss.str();
+		fileOut.close();
 	}
-	for(auto i : line_error)
+	else
 	{
-		cout << i << endl;
+		for (int i = 0; i < type_error.size(); i++)
+		{
+			cout << "Linha:" << type_error[i] << " " << line_error[i] << endl;
+		}
 	}
-	for (auto i : data)
-	{
-		cout << i << endl;
-	}
+	
 	return 0;
 }
