@@ -20,10 +20,10 @@ vector<string> type_error; // Lexico, Sintatico, Semantico
 vector<string> sec_data; // Vetor que armazena a secao data 
 vector<string> sec_text; // Vetor que armazena a secao text
 
-vector<string> tabela_instrucoes {"add", "sub", "mul", "div", "jmp", "jmpn", "jmpp", "jmpz", "copy", "load", "store","input", "output", "stop"};
-vector<int> opcode {1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ,11, 12, 13, 14};
-vector<int> tamanho {2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2 ,1};
-vector<string> tabela_diretivas = {"space", "const"};
+static vector<string> tabela_instrucoes {"add", "sub", "mul", "div", "jmp", "jmpn", "jmpp", "jmpz", "copy", "load", "store","input", "output", "stop"};
+static vector<int> opcode {1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ,11, 12, 13, 14};
+static vector<int> tamanho {2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2 ,1};
+static vector<string> tabela_diretivas = {"space", "const"};
 
 string fileName(string input)
 {
