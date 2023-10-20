@@ -6,7 +6,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 	// Verifica se apenas um arquivo foi passado como argumento
-	if(argc > 2)
+	if(argc != 1)
 	{
 		cout << "Erro no input de arquivo." << endl;
 		return 1;
@@ -30,12 +30,6 @@ int main(int argc, char *argv[])
 		}
 		file.close();
 	}
-	else
-	{
-		cout << "Erro na abertura de arquivo";
-		return 1;
-	}
-
 	for(auto i : program)
 	{
 		cout << i << endl;
