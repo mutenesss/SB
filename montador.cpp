@@ -2,8 +2,10 @@
 #include <boost/algorithm/string.hpp>
 
 /*Alunos
-Erick Rodrigues Fraga
-Arthur Mota
+Nome: Erick Rodrigues Fraga 
+Matricula: 190086815
+Nome: Arthur Barreiros de Oliveira Mota
+Matriculas: 190102829
 */
 
 /* Como Compilar
@@ -155,7 +157,7 @@ int main(int argc, char *argv[])
 
 	struct label l;
 
-	// Primeira passagem => adicao de labels na tabela de simbolos
+// Primeira passagem => adicao de labels na tabela de simbolos
 	for (unsigned int i = 0; i < program.size(); i++)
 	{
 		if (program[i].find_first_of(":") != string::npos)
@@ -168,7 +170,17 @@ int main(int argc, char *argv[])
 			else
 			{
 				string aux = program[i].substr(0, program[i].find_first_of(":"));
-				if (regex_match(aux.begin(), aux.end(), var) == 1 && aux.size() <= 30 && find(tabela_instrucoes.begin(), tabela_instrucoes.end(), aux) == tabela_instrucoes.end())
+				boost::trim(aux);
+				int correct_label;
+				if (aux.size() == 1){
+					regex x("[_a-z]");
+					correct_label = regex_match(aux.begin(), aux.end(), x);
+				}
+				else
+				{
+					correct_label = regex_match(aux.begin(), aux.end(), var);
+				}
+				if (correct_label == 1 && aux.size() <= 30 && find(tabela_instrucoes.begin(), tabela_instrucoes.end(), aux) == tabela_instrucoes.end())
 				{
 					string sub = program[i].substr(program[i].find_first_of(":") + 1, program[i].length());
 					vector<string> inst;
@@ -567,48 +579,9 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				if (inst[0] == "const")
+				if (find(line_error.begin(), line_error.end(), i+1) == line_error.end())
 				{
-					boost::trim(inst[1]);
-					if (inst[1].find_first_not_of("0123456789") == string::npos)
-					{
-						data.push_back(stoi(inst[1]));
-					}
-					else
-					{
-						if (find(line_error.begin(), line_error.end(), i+1) == line_error.end())
-						{
-							addError("Erro Sintatico", i+1);
-						}
-					}
-				}
-				else if (inst[0] == "space")
-				{
-					if (inst.size() == 1)
-					{
-						data.push_back(0);
-					}
-					else if (inst[1].find_first_not_of("0123456789") == string::npos)
-					{
-						for (int i; i < stoi(inst[1]); i++)
-						{
-							data.push_back(0);
-						}
-					}
-					else
-					{
-						if (find(line_error.begin(), line_error.end(), i+1) == line_error.end())
-						{
-							addError("Erro Sintatico", i+1);
-						}
-					}		
-				}
-				else
-				{
-					if (find(line_error.begin(), line_error.end(), i+1) == line_error.end())
-					{
-						addError("Erro Lexico", i+1);
-					}
+					addError("Erro Semântico", i+1);
 				}
 			}
 		}
@@ -633,7 +606,7 @@ int main(int argc, char *argv[])
 	{
 		for (unsigned int i = 0; i < type_error.size(); i++)
 		{
-			cout << "Linha:" << type_error[i] << " " << line_error[i] << endl;
+			cout << "Linha:" << line_error[i] << " Tipo: " << type_error[i] << endl;
 		}
 	}
 	
