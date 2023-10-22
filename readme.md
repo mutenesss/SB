@@ -39,11 +39,10 @@ Bibliotecas padrão C++ e Bibliotecas Boost
 ```
 
 _Como Utilizar_
-Ambos os arquivos precisam estar na mesma pasta
 ```plaintext
 ./montador arquivo.asm
-
 ```
+Ambos os arquivos precisam estar na mesma pasta
 
 Montador do assembly inventado
 
@@ -78,10 +77,10 @@ Bibliotecas padrão C++
 ```
 
 _Como Utilizar_
-Ambos os arquivos precisam estar na mesma pasta
 ```plaintext
 ./simulador arquivo.obj
 ```
+Ambos os arquivos precisam estar na mesma pasta
 
 Simulador do assembly inventado
 
