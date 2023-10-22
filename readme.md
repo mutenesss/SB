@@ -14,7 +14,12 @@ Nome: Arthur Barreiros de Oliveira Mota
 Matriculas: 190102829
 
   
- 
+### Sistemas Testados:
+```plaintext
+Linux:
+Manjaro - 2 versões
+Ubuntu 22.01
+``` 
 
 ### Descrição dos Arquivos:
 
