@@ -39,9 +39,10 @@ Bibliotecas padrão C++ e Bibliotecas Boost
 ```
 
 _Como Utilizar_
+Ambos os arquivos precisam estar na mesma pasta
 ```plaintext
 ./montador arquivo.asm
-Ambos os arquivos precisam estar na mesma pasta
+
 ```
 
 Montador do assembly inventado
@@ -77,14 +78,14 @@ Bibliotecas padrão C++
 ```
 
 _Como Utilizar_
+Ambos os arquivos precisam estar na mesma pasta
 ```plaintext
 ./simulador arquivo.obj
-Ambos os arquivos precisam estar na mesma pasta
 ```
 
 Simulador do assembly inventado
 
 *	Tem como entrada os arquivos .obj obtidos do montador.
 *   Simulação iterativa do programa.
-*   Em casos de invasão da área de memória, o programa encerra diretamente.
+*   Em casos de invasão da área de memória, o programa encerra automaticamente.
 *   Apenas 1 arquivo .obj pode ser passado por vez.
