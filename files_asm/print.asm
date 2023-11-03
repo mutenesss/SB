@@ -6,7 +6,7 @@
 ;	eax recebe numero p system call
 ;	ebx recebe return status
 section .data
-	number int 0
+	number dw 1
 section .text
 global _start
 _start:
@@ -18,7 +18,7 @@ _start:
 	 
 	mov eax, 4 ; sys write
 	mov ebx, 1 ; stdout
-	mov edx, number
+	mov ecx, number
 	mov edx, 32
 	int 0x80 ; executa syscall
 	
