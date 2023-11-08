@@ -10,10 +10,10 @@
 ;	rest -> resto da divisao
 
 section .bss
-	a resb 1
-	b resb 1
-	quo resb 4
-	resto resb 4
+	a resb 11
+	b resb 11
+	quo resb 11
+	resto resb 11
 	 
 section .data
 	msg1 db 'Digite o primeiro numero', 0dH, 0ah
@@ -53,19 +53,21 @@ _start:
 	mov ecx, b
 	mov ecx, 2
 	int 0x80
+	
+	jmp _calc
 
 _calc:
-	mov eax, a
-	add eax, [b]
-	cdq
+	mov word ax, [a]
+	add ax, [b]
+	cbw
+	
 	mov bx, 2
 	idiv bx
-	; div 32/16 -> quociente = eax, resto = edx 
-	; os dois mov seguintes estao com erro
-	; objetivo: retirar valores de eax e edx para memoria
-	; possivel problema -> o programa acaba antes da divisao ser completa, por isso saida vazia
+	
 	mov [quo], eax
 	mov [resto], edx
+	
+	jmp _result
 
 _result:
 	mov eax, 4
