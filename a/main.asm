@@ -37,19 +37,4 @@ _start:
     call get_string
     add esp, 8
 
-    push msg2_size
-    push msg2
-    call print_string
-    add esp, 8 ; Limpa a pilha dos dois enderecos inseridos
-
-    push 20
-    push name
-    call print_string
-    add esp, 8 ; Limpa a pilha dos dois enderecos inseridos
-
-    push msg3_size
-    push msg3
-    call print_string
-    add esp, 8 ; Limpa a pilha dos dois enderecos inseridos
-
     call end
