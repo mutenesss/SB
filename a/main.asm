@@ -8,7 +8,7 @@ section .bss
     name resb 20
     arg1 resb 11    ; Maior inteiro 32 bits possivel + sinal
     arg2 resb 11    ; Maior inteiro 32 bits possivel + sinal
-    resp resb 11    ; Resposta pos processamento
+    resp resb 10    ; Resposta pos processamento
     opti resb 1     ; Opcao da calculadora
 
 section .data
@@ -26,6 +26,15 @@ global _start
 extern get_string
 extern print_string
 extern end
+
+; extern string_to_int
+; extern int_to_string
+extern add_int
+extern sub_int
+; extern mul_int
+; extern div_int
+; extern exp_int
+; extern mod_int
 _start:
     push msg1_size
     push msg1
@@ -35,6 +44,12 @@ _start:
     push 20
     push name
     call get_string
+    add esp, 8
+
+    push 15
+    push 15
+    call sub_int
+    mov dword [resp], eax
     add esp, 8
 
     call end
