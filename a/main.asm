@@ -5,11 +5,20 @@
 
 
 section .bss
-    name resb 20
-    arg1 resb 11    ; Maior inteiro 32 bits possivel + sinal
-    arg2 resb 11    ; Maior inteiro 32 bits possivel + sinal
-    resp resb 10    ; Resposta pos processamento
-    opti resb 1     ; Opcao da calculadora
+    nome        resb 20         ; Espaco para inserir o nome
+    tam_nome    resb 5          ; Tamanho do nome
+
+    arg1        resb 12         ; Maior inteiro 32 bits possivel + sinal + enter
+    arg2        resb 12         ; Maior inteiro 32 bits possivel + sinal + enter
+    arg3        resb 12         ; Ponteiro para string final
+
+    option      resb 1          ; Opcao da calculadora
+
+    num1        resd 1          ; Arg1 convertido para inteiro
+    num2        resd 1          ; Arg2 convertido para inteiro
+    resp        resd 1          ; Resposta pos processamento
+
+
 
 section .data
     msg1 db 'Bem-vindo. Digite seu nome:', 0dh, 0ah
@@ -21,35 +30,207 @@ section .data
     msg3 db ', bem-vindo ao programa de CALC IA-32', 0dh, 0ah
     msg3_size EQU $-msg3
 
+    opcao db 'ESCOLHA UMA OPCAO:', 0dh, 0ah
+    opcao_size EQU $-opcao
+
+    op1 db '- 1: SOMA', 0dh, 0ah
+    op1_size EQU $-op1
+
+    op2 db '- 2: SUBTRACAO', 0dh, 0ah
+    op2_size EQU $-op2
+
+    op3 db '- 3: MULTIPLICACAO', 0dh, 0ah
+    op3_size EQU $-op3
+
+    op4 db '- 4: DIVISAO', 0dh, 0ah
+    op4_size EQU $-op4
+
+    op5 db '- 5: EXPONENCIACAO', 0dh, 0ah
+    op5_size EQU $-op5
+
+    op6 db '- 6: MOD', 0dh, 0ah
+    op6_size EQU $-op6
+
+    op7 db '- 7: SAIR', 0dh, 0ah
+    op7_size EQU $-op7
+
+    val1 db 'Por favor, insira o primeiro numero:', 0dh, 0ah
+    val1_size EQU $-val1
+
+    val2 db 'Por favor, insira o segundo numero:', 0dh, 0ah
+    val2_size EQU $-val2
+
+
 section .text
 global _start
-extern get_string
-extern print_string
-extern end
+    %define Limpa2 add esp, 8
+    %define Limpa3 add esp, 12
 
-; extern string_to_int
-; extern int_to_string
-extern add_int
-extern sub_int
-; extern mul_int
-; extern div_int
-; extern exp_int
-; extern mod_int
+    extern get_string
+    extern print_string
+    extern end
+
+    extern string_to_int
+    ; extern int_to_string
+    extern add_int
+    extern sub_int
+    ; extern mul_int
+    ; extern div_int
+    ; extern exp_int
+    ; extern mod_int
+
 _start:
+    ; Print da mensagem de abertura do programa
     push msg1_size
     push msg1
     call print_string
-    add esp, 8 ; Limpa a pilha dos dois enderecos inseridos
+    Limpa2 ; Limpa a pilha dos dois enderecos inseridos
 
+    ; Pega o nome da pessoa
     push 20
-    push name
+    push nome
     call get_string
-    add esp, 8
+    Limpa2
 
-    push 15
-    push 15
-    call sub_int
-    mov dword [resp], eax
-    add esp, 8
+    ; Salva o tamanho do nome da pessoa
+    mov dword [tam_nome], eax
+    mov dword [nome + eax - 1], 0x0
+
+    ; Escrita da mensagem de bem vindo
+    push msg2_size
+    push msg2
+    call print_string
+    Limpa2
+
+    push tam_nome
+    push nome
+    call print_string
+    Limpa2
+
+    push msg3_size
+    push msg3
+    call print_string
+    Limpa2
+
+    ; Chama o menu
+        ; SOMA
+    push op1_size
+    push op1
+    call print_string
+    Limpa2
+        ; SUBTRACAO
+    push op2_size
+    push op2
+    call print_string
+    Limpa2
+        ; MULTIPLICACAO
+    push op3_size
+    push op3
+    call print_string
+    Limpa2
+        ; DIVISAO
+    push op4_size
+    push op4
+    call print_string
+    Limpa2
+        ; EXPONENCIACAO
+    push op5_size
+    push op5
+    call print_string
+    Limpa2
+        ; MOD
+    push op6_size
+    push op6
+    call print_string
+    Limpa2
+        ; SAIR
+    push op7_size
+    push op7
+    call print_string
+    Limpa2
+
+    ; Leitura da opcao do menu
+    push 2
+    push option
+    call get_string
+    Limpa2
+
+    cmp byte [option], 0x31
+    je _soma
+    ;
+    ; cmp [option], 0x32
+    ; je _subtracao
+    ;
+    ; cmp [option], 0x33
+    ; je _multiplicacao
+    ;
+    ; cmp [option], 0x34
+    ; je _divisao
+    ;
+    ; cmp [option], 0x35
+    ; je _exponenciacao
+    ;
+    ; cmp [option], 0x36
+    ; je _mod
+
+    call end
+
+_soma:
+    ; Entrada do primeiro valor
+    push val1_size
+    push val1
+    call print_string
+    Limpa2
+
+    push 11     ; Tamanho maximo de uma string de 32 bits + sinal
+    push arg1   ; Ponteiro para salvar a string
+    call get_string
+    Limpa2
+
+    ; Conversao do arg1 para int
+    push eax    ; Tamanho da string lida
+    push arg1   ; Ponteiro para string
+    call string_to_int
+    Limpa2
+    mov eax, [num1]
+
+    ; Entrada do segundo valor
+
+    push val2_size
+    push val2
+    call print_string
+    Limpa2
+
+    push 11     ; Tamanho maximo de uma string de 32 bits + sinal
+    push arg2   ; Ponteiro para salvar a string
+    call get_string
+    Limpa2
+
+    ; Conversao do arg2 para int
+    push eax    ; Tamanho da string lida
+    push arg2   ; Ponteiro para string
+    call string_to_int
+    Limpa2
+    mov eax, [num2]
+
+    ; Executa a operacao
+    push num1
+    push num2
+    call add_int
+    Limpa2
+
+    ; Coloca o valor da operacao na memoria
+    mov eax, resp
+
+    ; Converte o resultado da operacao para string
+
+    push resp
+    push arg3
+    call int_to_string
+    Limpa3
+
+
+    ; Print do resultado
+
 
     call end
