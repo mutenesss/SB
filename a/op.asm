@@ -6,7 +6,7 @@ section .text
 %define OVER1 0xFFFFFFFF
 
 global string_to_int
-; global int_to_string
+global int_to_string
 global add_int
 global sub_int
 global mul_int
@@ -57,14 +57,51 @@ string_to_int:
         leave
         ret
 
-; int_to_string:
-;     enter 0,0
-;     ; EBP + 8  = Valor Inteiro
-;     ; EBP + 12 = Ponteiro onde a string vai ser salva
-;     ; Coloca o inteiro em EAX e coloca a base em ECX
-;
-;     leave
-;     ret
+int_to_string:
+    enter 0,0
+    ; EBP + 8  = Valor Inteiro
+    ; EBP + 12 = Ponteiro onde a string vai ser salva
+    ; Empilha o valor que representa o final da string
+    push 0
+
+    ; Coloca o numero em eax
+    mov eax, VAL1
+    mov ecx, 10
+    ; Compara se o numero eh positivo ou negativo
+    cmp eax, 0
+    jge _loop_int
+
+    ; Obtem a representacao em complemento de 2 caso negativo
+    neg eax
+
+    _loop_int:
+        ; Extende o sinal de eax e o divide por 10
+        cdq
+        idiv ecx
+        ; Converte o resto da divisao para ascii e adiciona o valor a pilha
+        add edx, 0x30
+        push edx
+        ; Verifica que o quociente = 0
+        cmp eax, 0
+        jne _pointer
+
+        ; Adiciona o sinal - a pilha
+        push '-'
+
+    _pointer:
+        ; Coloca o ponteiro da string em ebx
+        mov ebx, VAL2
+    _string:
+        ; Desempilha caracter a caracter e coloca na string
+        pop eax
+        mov byte [ebx], al
+        inc ebx
+        ; Ao chegar no final da string sai do loop
+        cmp eax, 0
+        jne _string
+
+    leave
+    ret
 
 add_int:
     ; EBP + 8   = Primeiro valor a ser somado
@@ -115,24 +152,24 @@ exp_int:
     mov eax, VAL2
     mov ebx, VAL1
 
-_loop:
-    imul VAL2
-    sub ebx, 1
+    _loop:
+        imul VAL2
+        sub ebx, 1
 
-    cmp edx, OVER0
-    je _not_oflow
+        cmp edx, OVER0
+        je _not_oflow
 
-    cmp edx, OVER1
-    je _not_oflow
+        cmp edx, OVER1
+        je _not_oflow
 
-    extern end
-    call end
+        extern end
+        call end
 
-_not_oflow:
-    cmp ebx, 1
-    jne _loop
-    leave
-    ret
+    _not_oflow:
+        cmp ebx, 1
+        jne _loop
+        leave
+        ret
 
 div_int:
     enter 0,0

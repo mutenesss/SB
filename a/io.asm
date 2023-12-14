@@ -35,9 +35,9 @@ print_string:
     mov edx, [ebp + 12] ; Tamanho buffer de saida
     int 0x80
 
-    pop ebx
-    pop ecx
     pop edx
+    pop ecx
+    pop ebx
     leave
     ret
 

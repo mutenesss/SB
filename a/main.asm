@@ -71,7 +71,7 @@ global _start
     extern end
 
     extern string_to_int
-    ; extern int_to_string
+    extern int_to_string
     extern add_int
     extern sub_int
     ; extern mul_int
@@ -112,51 +112,51 @@ _start:
     call print_string
     Limpa2
 
-    ; Chama o menu
-        ; SOMA
-    push op1_size
-    push op1
-    call print_string
-    Limpa2
-        ; SUBTRACAO
-    push op2_size
-    push op2
-    call print_string
-    Limpa2
-        ; MULTIPLICACAO
-    push op3_size
-    push op3
-    call print_string
-    Limpa2
-        ; DIVISAO
-    push op4_size
-    push op4
-    call print_string
-    Limpa2
-        ; EXPONENCIACAO
-    push op5_size
-    push op5
-    call print_string
-    Limpa2
-        ; MOD
-    push op6_size
-    push op6
-    call print_string
-    Limpa2
-        ; SAIR
-    push op7_size
-    push op7
-    call print_string
-    Limpa2
-
-    ; Leitura da opcao do menu
-    push 2
-    push option
-    call get_string
-    Limpa2
-
-    cmp byte [option], 0x31
-    je _soma
+    ; ; Chama o menu
+    ;     ; SOMA
+    ; push op1_size
+    ; push op1
+    ; call print_string
+    ; Limpa2
+    ;     ; SUBTRACAO
+    ; push op2_size
+    ; push op2
+    ; call print_string
+    ; Limpa2
+    ;     ; MULTIPLICACAO
+    ; push op3_size
+    ; push op3
+    ; call print_string
+    ; Limpa2
+    ;     ; DIVISAO
+    ; push op4_size
+    ; push op4
+    ; call print_string
+    ; Limpa2
+    ;     ; EXPONENCIACAO
+    ; push op5_size
+    ; push op5
+    ; call print_string
+    ; Limpa2
+    ;     ; MOD
+    ; push op6_size
+    ; push op6
+    ; call print_string
+    ; Limpa2
+    ;     ; SAIR
+    ; push op7_size
+    ; push op7
+    ; call print_string
+    ; Limpa2
+    ;
+    ; ; Leitura da opcao do menu
+    ; push 2
+    ; push option
+    ; call get_string
+    ; Limpa2
+    ;
+    ; cmp byte [option], 0x31
+    ; je _soma
     ;
     ; cmp [option], 0x32
     ; je _subtracao
@@ -172,6 +172,27 @@ _start:
     ;
     ; cmp [option], 0x36
     ; je _mod
+
+    push 11     ; Tamanho maximo de uma string de 32 bits + sinal
+    push arg1   ; Ponteiro para salvar a string
+    call get_string
+    Limpa2
+
+    push eax    ; Tamanho da string lida
+    push arg1   ; Ponteiro para string
+    call string_to_int
+    mov eax, dword [num1]
+    Limpa2
+
+    push 11
+    push arg1
+    call print_string
+    Limpa2
+
+    push 11
+    push num1
+    call print_string
+    Limpa2
 
     call end
 
@@ -231,6 +252,9 @@ _soma:
 
 
     ; Print do resultado
-
+    push 12
+    push resp
+    call print_string
+    Limpa2
 
     call end
