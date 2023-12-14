@@ -223,14 +223,14 @@ _soma:
 
     ; Converte o resultado da operacao para string
 
-    push dword [resp]
     push arg3
+    push dword [resp]
     call int_to_string
     Limpa3
 
     ; Print do resultado
     push 12
-    push resp
+    push arg3
     call print_string
     Limpa2
 
