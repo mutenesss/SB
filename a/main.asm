@@ -173,27 +173,7 @@ _start:
     ; cmp [option], 0x36
     ; je _mod
 
-    push 11     ; Tamanho maximo de uma string de 32 bits + sinal
-    push arg1   ; Ponteiro para salvar a string
-    call get_string
-    Limpa2
-
-    push eax    ; Tamanho da string lida
-    push arg1   ; Ponteiro para string
-    call string_to_int
-    mov eax, dword [num1]
-    Limpa2
-
-    push 11
-    push arg1
-    call print_string
-    Limpa2
-
-    push 11
-    push num1
-    call print_string
-    Limpa2
-
+    jmp _soma
     call end
 
 _soma:
@@ -212,11 +192,10 @@ _soma:
     push eax    ; Tamanho da string lida
     push arg1   ; Ponteiro para string
     call string_to_int
+    mov dword [num1], eax
     Limpa2
-    mov eax, [num1]
 
     ; Entrada do segundo valor
-
     push val2_size
     push val2
     call print_string
@@ -231,25 +210,23 @@ _soma:
     push eax    ; Tamanho da string lida
     push arg2   ; Ponteiro para string
     call string_to_int
+    mov dword [num2], eax
     Limpa2
-    mov eax, [num2]
 
     ; Executa a operacao
-    push num1
-    push num2
+    push dword [num1]
+    push dword [num2]
     call add_int
-    Limpa2
-
     ; Coloca o valor da operacao na memoria
-    mov eax, resp
+    mov dword[resp], eax
+    Limpa2
 
     ; Converte o resultado da operacao para string
 
-    push resp
+    push dword [resp]
     push arg3
     call int_to_string
     Limpa3
-
 
     ; Print do resultado
     push 12
