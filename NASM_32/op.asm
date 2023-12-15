@@ -2,17 +2,23 @@ section .text
 
 %define VAL1 dword[ebp + 8]
 %define VAL2 dword[ebp + 12]
+%define VAL3 dword[ebp + 16]
+%define VAL4 dword[ebp + 20]
 %define OVER0 0x00000000
 %define OVER1 0xFFFFFFFF
+
+extern print_string
+
+extern end
 
 global string_to_int
 global int_to_string
 global add_int
 global sub_int
 global mul_int
-;global div_int
-;global exp_int
-;global mod_int
+global div_int
+global exp_int
+global mod_int
 
 string_to_int:
     enter 0,0
@@ -83,7 +89,10 @@ int_to_string:
         push edx
         ; Verifica que o quociente = 0
         cmp eax, 0
-        jne _pointer
+        jne _loop_int
+
+        cmp VAL1, 0
+        jge _pointer
 
         ; Adiciona o sinal - a pilha
         push '-'
@@ -118,14 +127,16 @@ sub_int:
     ; EBP + 12  = Segundo valor a ser subtraido
     ; Resultado eh retornado em EAX
     enter 0,0
-    mov eax, VAL1
-    sub eax, VAL2
+    mov eax, VAL2
+    sub eax, VAL1
     leave
     ret
 
 mul_int:
     ; EBP + 8   = Primeira parcela
     ; EBP + 12  = Segunda parcela
+    ; EBP + 20 = Tamanho da msg de overflow
+    ; EBP + 16 = Ponteiro mensagem de overflow
     ; Produto eh retornado em EAX
     enter 0,0
     mov eax, VAL1
@@ -137,7 +148,10 @@ mul_int:
     cmp edx, OVER1
     je _not_overflow
 
-    extern end
+    push VAL4
+    push VAL3
+    call print_string
+
     call end
 
 _not_overflow:
@@ -162,7 +176,10 @@ exp_int:
         cmp edx, OVER1
         je _not_oflow
 
-        extern end
+        push VAL4
+        push VAL3
+        call print_string
+
         call end
 
     _not_oflow:

@@ -1,5 +1,0 @@
-https://cratecode.com/info/x86-assembly-nasm-function-definition
-https://cratecode.com/info/tag/nasm
-ia32 calculator
-convert string to int nasm
-
