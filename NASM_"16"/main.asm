@@ -57,6 +57,7 @@ section .data
 
 section .text
 global _start
+    %define Limpa1 add esp, 4
     %define Limpa2 add esp, 8
     %define Limpa3 add esp, 12
 
@@ -190,6 +191,7 @@ _soma:
     Limpa2
     push dword[num1]
     call compair
+    Limpa1
 
     ; Entrada do segundo valor
     push val2_size
@@ -210,6 +212,7 @@ _soma:
     Limpa2
     push dword[num2]
     call compair
+    Limpa1
 
     ; Executa a operacao
     push dword [num1]
@@ -220,6 +223,7 @@ _soma:
     Limpa2
     push dword[resp]
     call compair
+    Limpa1
 
     ; Converte o resultado da operacao para string
 
@@ -256,6 +260,7 @@ _subtracao:
     Limpa2
     push dword[num1]
     call compair
+    Limpa1
 
     ; Entrada do segundo valor
     push val2_size
@@ -276,6 +281,7 @@ _subtracao:
     Limpa2
     push dword[num2]
     call compair
+    Limpa1
 
     ; Executa a operacao
     push dword [num1]
@@ -286,6 +292,7 @@ _subtracao:
     Limpa2
     push dword[resp]
     call compair
+    Limpa1
 
     ; Converte o resultado da operacao para string
 
@@ -325,6 +332,7 @@ _multiplicacao:
     Limpa2
     push dword[num1]
     call compair
+    Limpa1
 
     ; Entrada do segundo valor
     push val2_size
@@ -345,6 +353,7 @@ _multiplicacao:
     Limpa2
     push dword[num2]
     call compair
+    Limpa1
 
     ; Executa a operacao
     push dword [num1]
@@ -355,6 +364,7 @@ _multiplicacao:
     Limpa2
     push dword[resp]
     call compair
+    Limpa1
 
     ; Converte o resultado da operacao para string
 
@@ -392,6 +402,7 @@ _divisao:
     Limpa2
     push dword[num1]
     call compair
+    Limpa1
 
     ; Entrada do segundo valor
     push val2_size
@@ -412,6 +423,7 @@ _divisao:
     Limpa2
     push dword[num2]
     call compair
+    Limpa1
 
     ; Executa a operacao
     push dword [num1]
@@ -422,6 +434,7 @@ _divisao:
     Limpa2
     push dword[resp]
     call compair
+    Limpa1
 
     ; Converte o resultado da operacao para string
 
@@ -461,6 +474,7 @@ _exponenciacao:
     Limpa2
     push dword[num1]
     call compair
+    Limpa1
 
     ; Entrada do segundo valor
     push val2_size
@@ -481,6 +495,7 @@ _exponenciacao:
     Limpa2
     push dword[num2]
     call compair
+    Limpa1
 
     ; Executa a operacao
     push dword [num1]
@@ -491,6 +506,7 @@ _exponenciacao:
     Limpa2
     push dword[resp]
     call compair
+    Limpa1
 
     ; Converte o resultado da operacao para string
 
@@ -528,6 +544,7 @@ _mod:
     Limpa2
     push dword[num1]
     call compair
+    Limpa1
 
     ; Entrada do segundo valor
     push val2_size
@@ -548,6 +565,7 @@ _mod:
     Limpa2
     push dword[num2]
     call compair
+    Limpa1
 
     ; Executa a operacao
     push dword [num1]
@@ -558,6 +576,7 @@ _mod:
     Limpa2
     push dword[resp]
     call compair
+    Limpa1
 
     ; Converte o resultado da operacao para string
 

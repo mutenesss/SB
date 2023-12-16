@@ -143,17 +143,18 @@ mul_int:
     mov eax, VAL1
     imul VAL2
 
-    cmp edx, OVER0
-    je _not_overflow
+    cmp eax, -32768
+    jge _overflow
 
-    cmp edx, OVER1
-    je _not_overflow
+    _overflow:
+        cmp eax, 32767
+        jle _not_overflow
 
-    push VAL4
-    push VAL3
-    call print_string
+        push VAL4
+        push VAL3
+        call print_string
 
-    call end
+        call end
 
 _not_overflow:
     leave
@@ -171,17 +172,18 @@ exp_int:
         imul VAL2
         sub ebx, 1
 
-        cmp edx, OVER0
-        je _not_oflow
+        cmp eax, -32768
+        jge _oflow
 
-        cmp edx, OVER1
-        je _not_oflow
+        _oflow:
+            cmp eax, 32767
+            jle _not_oflow
 
-        push VAL4
-        push VAL3
-        call print_string
+            push VAL4
+            push VAL3
+            call print_string
 
-        call end
+            call end
 
     _not_oflow:
         cmp ebx, 1
