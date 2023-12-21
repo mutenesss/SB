@@ -49,7 +49,10 @@ Executar o arquivo compile_16.sh
 ou ir para a pasta NASM_16 e executar os comandos
 
 ```plaintext
-./nasm -f elf -o io.o io.asm && ./nasm -f elf -o main.o main.asm && ./nasm -f elf -o op.o op.asm &&  ld -m elf_i386 -o calc_32 main.o io.o op.o
+./nasm -f elf -o io.o io.asm && 
+./nasm -f elf -o main.o main.asm && 
+./nasm -f elf -o op.o op.asm &&
+ld -m elf_i386 -o calc_32 main.o io.o op.o
 ```
 
 
